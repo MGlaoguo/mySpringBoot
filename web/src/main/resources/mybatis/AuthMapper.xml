@@ -1,0 +1,458 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="com.myspringboost.repository.mybatis.AuthDao">
+    <sql id="COMMON_SELECT">
+        <![CDATA[
+		id,
+		creator,
+		gmt_create as gmtCreate,
+		modifier,
+		gmt_modified as gmtModified,
+		is_deleted as isDeleted,
+		user_id as userId,
+		ali_id as aliId,
+		resource_owner as resourceOwner,
+		refresh_token as refreshToken,
+		authorized_date as authorizedDate,
+		status,
+		default_binding as defaultBinding,
+		alias as alias,
+		rate as rate,
+		app_key as appKey,
+		app_secret as appSecret,
+		seller_address as sellerAddress,
+	    seller_phone as sellerPhone,
+	    seller_zip_code as sellerZipCode,
+	    return_unit as returnUnit,
+	    refresh_token_timeout as refreshTokenTimeout,
+	    wish_app_key as wishAppKey,
+	    site as site,
+	    seller_id as sellerId,
+	    wish_product_id as wishProductId,
+	    customer_agreement as customerAgreement,
+	    is_expired as isExpired,
+	    version as version,
+	    access_token as accessToken,
+	    access_token_timeout as accessTokenTimeout
+        ]]>
+    </sql>
+
+    <sql id="COMMON_CONDITION">
+        and is_deleted='n'
+    </sql>
+
+    <sql id="COMMON_CONDITION_EXT">
+        is_deleted='n' and status = #{status}
+        <if test="id != null">
+            and id = #{id}
+        </if>
+        <if test="userId != null">
+            and user_id = #{userId}
+        </if>
+        <if test="aliId != null">
+            and ali_id = #{aliId}
+        </if>
+        <if test="resourceOwner != null">
+            and resource_owner = #{resourceOwner}
+        </if>
+        <if test="defaultBinding != null">
+            and default_binding = #{defaultBinding}
+        </if>
+        <if test="site != null">
+            and site = #{site}
+        </if>
+        <if test="sites != null">
+            and site in
+            <foreach collection="sites" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="aliIdList != null">
+            and ali_id in
+            <foreach collection="aliIdList" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="wishAppKey != null">
+            and wish_app_key = #{wishAppKey}
+        </if>
+        <if test="alias != null">
+            and alias = #{alias}
+        </if>
+        <if test="idList != null">
+            and id in
+            <foreach collection="idList" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="notUserId != null">
+            and user_id != #{notUserId}
+        </if>
+        <if test="sellerId != null">
+            and seller_id = #{sellerId}
+        </if>
+        <if test="customerAgreement != null">
+            and customer_agreement = #{customerAgreement}
+        </if>
+        <if test="notSites != null">
+            and site not in
+            <foreach collection="notSites" index="index" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </sql>
+
+    <sql id="COMMON_UPDATE">
+        <set>
+            gmt_modified = now()
+            <if test="isDeleted != null">
+                ,is_deleted = #{isDeleted}
+            </if>
+            <if test="modifier != null">
+                ,modifier = #{modifier}
+            </if>
+            <if test="aliId != null">
+                ,ali_id = #{aliId}
+            </if>
+            <if test="resourceOwner != null">
+                ,resource_owner = #{resourceOwner}
+            </if>
+            <if test="refreshToken != null">
+                ,refresh_token = #{refreshToken}
+            </if>
+            <if test="authorizedDate != null">
+                ,authorized_date = #{authorizedDate}
+            </if>
+            <if test="status != null">
+                ,status = #{status}
+            </if>
+            <if test="defaultBinding != null">
+                ,default_binding = #{defaultBinding}
+            </if>
+            <if test="alias != null">
+                ,alias = #{alias}
+            </if>
+            <if test="rate != null">
+                ,rate = #{rate}
+            </if>
+            <if test="appKey != null">
+                ,app_key = #{appKey}
+            </if>
+            <if test="appSecret != null">
+                ,app_secret = #{appSecret}
+            </if>
+            <if test="sellerAddress != null">
+                ,seller_address = #{sellerAddress}
+            </if>
+            <if test="sellerPhone != null">
+                ,seller_phone = #{sellerPhone}
+            </if>
+            <if test="sellerZipCode != null">
+                ,seller_zip_code = #{sellerZipCode}
+            </if>
+            <if test="returnUnit != null">
+                ,return_unit = #{returnUnit}
+            </if>
+            <if test="refreshTokenTimeout != null">
+                ,refresh_token_timeout = #{refreshTokenTimeout}
+            </if>
+            <if test="wishAppKey != null">
+                ,wish_app_key = #{wishAppKey}
+            </if>
+            <if test="sellerId != null">
+                ,seller_id = #{sellerId}
+            </if>
+            <if test="wishProductId != null">
+                ,wish_product_id = #{wishProductId}
+            </if>
+            <if test="customerAgreement != null">
+                ,customer_agreement = #{customerAgreement}
+            </if>
+            <if test="isExpired != null">
+                ,is_expired = #{isExpired}
+            </if>
+            <if test="accessToken != null">
+                ,access_token = #{accessToken}
+            </if>
+            <if test="accessTokenTimeout != null">
+                ,access_token_timeout = #{accessTokenTimeout}
+            </if>
+        </set>
+    </sql>
+
+    <!--
+		获取授权: 输出直接映射到对象, refresh_token列要"as refreshToken"以方便映射
+	-->
+    <select id="get" parameterType="long" resultType="Auth">
+        select
+        <include refid="COMMON_SELECT"/>
+        from sm_auth
+        where id=#{id} and is_deleted = 'n'
+    </select>
+
+    <!-- 1688 查询用户信息专用 -->
+    <select id="selectByAliId" resultType="Auth">
+        select
+        <include refid="COMMON_SELECT"/>
+        from sm_auth
+        where ali_id=#{aliId} and site = 'ali1688' and is_deleted = 'n'
+    </select>
+
+    <!-- 1688 查询用户信息专用 -->
+    <select id="selectFirstBySellerId" parameterType="com.aliexpress.app.storemanager.entity.Auth" resultType="com.aliexpress.app.storemanager.entity.Auth">
+        select
+        <include refid="COMMON_SELECT"/>
+        from sm_auth
+        where is_deleted = 'n' and status = 'enable'
+        <if test="site != null">
+            and site = #{site}
+        </if>
+        <if test="sellerId != null">
+            and seller_id = #{sellerId,jdbcType=VARCHAR}
+        </if>
+        <include refid="COMMON.ORDER_BY"/>
+        limit 1
+    </select>
+
+    <!-- 查询1688 站点长时令牌即将过期的用户 -->
+    <select id="selectAli1688RefreshTokenTimeout" resultType="com.aliexpress.app.storemanager.entity.Auth">
+        select
+        <include refid="COMMON_SELECT"/>
+        from sm_auth
+        where DATEDIFF(refresh_token_timeout,NOW()) <![CDATA[<]]> 7 and site = 'ali1688' and is_deleted = 'n'
+    </select>
+
+    <select id="getCommonConditionExt" parameterType="Auth" resultType="Auth">
+        select
+        <include refid="COMMON_SELECT"/>
+        from sm_auth
+        where
+        <include refid="COMMON_CONDITION_EXT"/>
+        <include refid="COMMON.LIMIT_PAGE"/>
+    </select>
+
+    <select id="getAuthIdListByPojo" parameterType="Auth" resultType="Long">
+        select id
+        from sm_auth
+        where
+        <include refid="COMMON_CONDITION_EXT"/>
+    </select>
+
+    <select id="getAuthIdAndAliasByPojo" parameterType="Auth" resultType="Auth">
+        select
+        <include refid="COMMON_SELECT"/>
+        from sm_auth
+        where
+        <include refid="COMMON_CONDITION_EXT"/>
+    </select>
+
+    <select id="getAliasById" parameterType="Long" resultType="Auth">
+        select id,resource_owner as resourceOwner,alias
+        from sm_auth
+        where is_deleted = 'n' and id = #{id} and status='enable'
+    </select>
+
+    <select id="getDistinctAuthByAliId" parameterType="java.lang.Long" resultType="com.aliexpress.app.storemanager.entity.Auth">
+        select ali_id as aliId,resource_owner as resourceOwner,refresh_token as refreshToken,app_key as appKey,app_secret as appSecret,access_token as accessToken
+        from sm_auth
+        where is_deleted = 'n' and ali_id = #{aliId} and status='enable'
+        limit 1
+    </select>
+
+    <update id="updateById" parameterType="Auth">
+        update sm_auth
+        <include refid="COMMON_UPDATE"/>
+        where
+        id = #{id}
+        <if test="userId != null">
+            and user_id = #{userId}
+        </if>
+    </update>
+
+    <update id="updateByAliId" parameterType="Auth">
+        update sm_auth
+        <include refid="COMMON_UPDATE"/>
+        where ali_id = #{aliId} and site = 'ae' and user_id = #{userId}
+    </update>
+
+    <insert id="insert" parameterType="com.aliexpress.app.storemanager.entity.Auth">
+        <selectKey resultType="Long" order="AFTER" keyProperty="id" >
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into sm_auth
+        (creator,gmt_create,modifier,gmt_modified,is_deleted,user_id,ali_id,resource_owner,
+        refresh_token,authorized_date,status,default_binding,alias,rate,app_key,app_secret,seller_address,seller_phone,seller_zip_code,return_unit,
+        refresh_token_timeout,wish_app_key,site,seller_id,wish_product_id,customer_agreement,is_expired,version,access_token,access_token_timeout)
+        values
+        (#{creator},#{gmtCreate},#{modifier},#{gmtModified},'n',#{userId},#{aliId},#{resourceOwner},
+        #{refreshToken},#{authorizedDate},#{status},#{defaultBinding},#{alias},#{rate},#{appKey},#{appSecret},#{sellerAddress},#{sellerPhone},#{sellerZipCode},#{returnUnit},
+        #{refreshTokenTimeout},#{wishAppKey},#{site},#{sellerId},#{wishProductId},#{customerAgreement},#{isExpired},
+        #{version},#{accessToken},#{accessTokenTimeout})
+    </insert>
+
+    <delete id="deleteOfWish" parameterType="Auth">
+        update sm_auth set modifier=#{modifier},is_deleted='y',gmt_modified=now(),
+        wish_app_key=concat(wish_app_key,'_',id) ,seller_id = concat(seller_id,'_',id)
+        where id = #{id} and user_id = #{userId}
+    </delete>
+
+    <delete id="deleteByPojo" parameterType="Auth">
+        update sm_auth set modifier=#{modifier},is_deleted='y',gmt_modified=now() where id = #{id}
+    </delete>
+
+    <update id="updateByUserId" parameterType="Auth">
+        update sm_auth
+        <include refid="COMMON_UPDATE"/>
+        where
+        user_id = #{userId}
+    </update>
+
+    <select id="getAliIdByUserId" parameterType="Long" resultType="Long">
+        select distinct ali_id
+        from sm_auth
+        where is_deleted = 'n' and status = 'enable' and user_id = #{userId}
+    </select>
+
+    <select id="getAuthForRefreshTokenWillExpried" parameterType="com.aliexpress.app.storemanager.entity.Auth" resultType="com.aliexpress.app.storemanager.entity.Auth">
+        select distinct ali_id as aliId,resource_owner as resourceOwner,refresh_token as refreshToken,app_key as appKey,app_secret as appSecret,access_token as accessToken
+        from sm_auth
+        where is_deleted = 'n' and refresh_token_timeout <![CDATA[>]]> #{refreshTokenTimeoutBegin}
+        and refresh_token_timeout <![CDATA[<=]]> #{refreshTokenTimeoutEnd}
+        and site = 'ae'
+    </select>
+
+    <select id="selectByPojo" parameterType="com.aliexpress.app.storemanager.entity.Auth" resultType="com.aliexpress.app.storemanager.entity.Auth">
+        select
+        <include refid="COMMON_SELECT"/>
+        from sm_auth
+        where
+        <include refid="COMMON_CONDITION_EXT"/>
+        <include refid="COMMON.ORDER_BY"/>
+        <include refid="COMMON.LIMIT_PAGE"/>
+    </select>
+
+    <select id="selectCountByPojo" parameterType="com.aliexpress.app.storemanager.entity.Auth" resultType="int">
+        select count(*)
+        from sm_auth
+        where
+        <include refid="COMMON_CONDITION_EXT"/>
+    </select>
+
+    <select id="getAuthIdListByUserId" parameterType="Long" resultType="Long">
+        select id
+        from sm_auth
+        where is_deleted = 'n' and status = 'enable' and user_id = #{userId}
+    </select>
+
+    <select id="getAllAuthByUserId" parameterType="com.aliexpress.app.storemanager.entity.Auth" resultType="com.aliexpress.app.storemanager.entity.Auth">
+        select id, resource_owner as resourceOwner
+        from sm_auth
+        where user_id = #{userId}
+    </select>
+
+    <select id="selectWithAllStatus" parameterType="com.aliexpress.app.storemanager.entity.Auth" resultType="com.aliexpress.app.storemanager.entity.Auth">
+        select
+        <include refid="COMMON_SELECT"/>
+        from sm_auth
+        where is_deleted = 'n' and user_id = #{userId}
+        <if test="site != null">
+            and site = #{site}
+        </if>
+        <if test="aliId != null">
+            and ali_id = #{aliId}
+        </if>
+        <if test="resourceOwner != null">
+            and resource_owner = #{resourceOwner}
+        </if>
+    </select>
+
+    <select id="selectCountWithAllStatus" parameterType="com.aliexpress.app.storemanager.entity.Auth" resultType="int">
+        select count(*)
+        from sm_auth
+        where is_deleted = 'n'
+        <if test="notUserId != null">
+            and user_id != #{notUserId}
+        </if>
+        <if test="site != null">
+            and site = #{site}
+        </if>
+        <if test="aliId != null">
+            and ali_id = #{aliId}
+        </if>
+        <if test="resourceOwner != null">
+            and resource_owner = #{resourceOwner}
+        </if>
+        <if test="sellerId != null">
+            and seller_id = #{sellerId}
+        </if>
+        <if test="sellerIdLike != null">
+            and seller_id like CONCAT(#{sellerIdLike,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="appKey != null">
+            and app_key = #{appKey}
+        </if>
+        <if test="accessToken != null">
+            and access_token = #{accessToken}
+        </if>
+    </select>
+
+    <select id="selectSiteListByUserId" parameterType="Long" resultType="String">
+        select distinct site
+        from sm_auth
+        where is_deleted = 'n' and status = 'enable' and user_id = #{userId}
+    </select>
+
+    <select id="selectFirst" parameterType="com.aliexpress.app.storemanager.entity.Auth" resultType="com.aliexpress.app.storemanager.entity.Auth">
+        select id,resource_owner as resourceOwner,refresh_token as refreshToken,app_key as appKey,app_secret as appSecret,
+        wish_app_key as wishAppKey,
+        site,
+        seller_id as sellerId,
+        wish_product_id as wishProductId,
+        is_expired as isExpired,
+        access_token as accessToken
+        from sm_auth
+        where is_deleted = 'n' and status = 'enable'
+        <if test="site != null">
+            and site = #{site}
+        </if>
+        <if test="sellerIdLike != null">
+            and seller_id like CONCAT(#{sellerIdLike,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="userId != null">
+            and user_id = #{userId}
+        </if>
+        <if test="idList != null">
+            and id in
+            <foreach collection="idList" item="item" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+        <include refid="COMMON.ORDER_BY"/>
+        limit 1
+    </select>
+
+    <update id="updateIsWishExpressById" parameterType="com.aliexpress.app.storemanager.entity.Auth">
+        update sm_auth set wish_product_id = #{wishProductId,jdbcType=VARCHAR}
+        where
+        id = #{id} and user_id = #{userId}
+    </update>
+
+    <select id="selectLikeWithResourceOwner" parameterType="com.aliexpress.app.storemanager.entity.Auth" resultType="com.aliexpress.app.storemanager.entity.Auth">
+        select resource_owner,alias
+        from sm_auth
+        where is_deleted = 'n'
+        <if test="resourceOwner != null">
+            and resource_owner like CONCAT('%',#{resourceOwner},'%')
+        </if>
+    </select>
+    <select id="selectAuthByPojo" resultType="com.aliexpress.app.storemanager.entity.Auth" parameterType="com.aliexpress.app.storemanager.entity.Auth">
+        select
+        <include refid="COMMON_SELECT"/>
+        from sm_auth
+        where
+        <include refid="COMMON_CONDITION_EXT"/>
+    </select>
+
+</mapper>
