@@ -1,7 +1,7 @@
 package com.myspringboost.repository.mybatis;
 
 import com.myspringboost.entity.Auth;
-import org.springframework.stereotype.Component;
+import org.mybatis.spring.annotation.MapperScan;
 
 import java.util.List;
 
@@ -9,8 +9,9 @@ import java.util.List;
  * @author guojiabin
  * @version 2018/7/27 0027 17:59
  */
+@MapperScan
 public interface AuthDao {
-    public Auth get(long id);
+    Auth get(long id);
 
     public List<Auth> selectAli1688RefreshTokenTimeout();
 

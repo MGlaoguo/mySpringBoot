@@ -1,5 +1,7 @@
 package com.myspringboost.entity;
 
+import com.alibaba.fastjson.JSONObject;
+import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -10,8 +12,8 @@ import java.util.List;
  * @author guojiabin
  * @version 2018/7/27 0027 18:04
  */
-@Component
-public class Auth {
+@Mapper
+public class Auth extends BaseEntity{
     /**
      * 授权正常
      */
@@ -374,6 +376,11 @@ public class Auth {
 
     public void setAccessTokenTimeout(Date accessTokenTimeout) {
         this.accessTokenTimeout = accessTokenTimeout;
+    }
+
+    @Override
+    public String toString() {
+        return JSONObject.toJSONString(this);
     }
 }
 
