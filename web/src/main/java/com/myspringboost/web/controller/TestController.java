@@ -18,19 +18,19 @@ import org.springframework.web.bind.annotation.RestController;
 public class TestController {
     @Autowired
     private TestService testService;
-    @RequestMapping("m1")
+    @RequestMapping(value = "/m1")
     @ResponseBody
     public String testMethod(){
         return "sdfasdf";
     }
-    @RequestMapping("m2")
+    @RequestMapping(value = "/m2")
     @ResponseBody
     public String testMethod2(){
         testService.findAuth(10L);
         System.out.println("asdfssaa");
         return "aaaaaaasss";
     }
-    @RequestMapping("m3")
+    @RequestMapping(value = "/m3")
     @ResponseBody
     public String testMethod3(){
         Auth auth = testService.findAuth(24L);
